@@ -10,7 +10,7 @@
   :root {
     --bg: #f5f0ea; --white: #fff; --navy: #1c2b3a; --teal: #2a7f7f; 
     --gold: #c8922a; --gold2: #f0c060; --gray: #7f8c8d; --border: #ddd4c8;
-    --green: #27ae60; --blue: #2980b9;
+    --green: #27ae60; --blue: #2980b9; --red: #c0392b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
   body { background: var(--bg); color: var(--navy); display: flex; justify-content: center; }
@@ -68,7 +68,7 @@
       <h2>Welcome</h2>
       <p style="color: var(--gray); margin-bottom: 20px; font-size: 0.9rem;">Choose your app interface to proceed.</p>
       <button class="btn btn-primary" onclick="loginAs('client')">📱 I am a Client</button>
-      <button class="btn btn-gold" onclick="loginAs('pickup')">🛵 I am a Pickup Boy</button>
+      <button class="btn btn-gold" onclick="loginAs('pickup')">🛵 I am a Staff Member</button>
     </div>
   </div>
 
@@ -79,14 +79,40 @@
     
     <h3 style="margin: 20px 0 10px; font-size: 1rem; color: var(--navy);">Your Active Orders</h3>
     <div id="client-orders-list"></div>
+    <button class="btn btn-outline" style="margin-top:20px; border-color:#ccc; color:#888;" onclick="nav('scr-login')">Sign Out</button>
+  </div>
+
+  <div id="scr-client-menu" class="screen">
+    <h2>Our Services</h2>
+    <div class="card">
+      <h3 style="color:var(--teal); font-size:1rem; margin-bottom:6px;">🫧 Wash n Fold</h3>
+      <p style="font-size:0.85rem; color:var(--gray);">Everyday laundry, machine washed, tumble dried, and neatly folded.</p>
+      <p style="font-size:0.85rem; font-weight:bold; margin-top:6px;">Starts at ₹50 / kg</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal); font-size:1rem; margin-bottom:6px;">🔳 Wash & Iron</h3>
+      <p style="font-size:0.85rem; color:var(--gray);">Washed, crisp steam ironing, and delivered on hangers or safely folded.</p>
+      <p style="font-size:0.85rem; font-weight:bold; margin-top:6px;">Starts at ₹15 / piece</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal); font-size:1rem; margin-bottom:6px;">✨ Premium Dry Clean</h3>
+      <p style="font-size:0.85rem; color:var(--gray);">Specialized care for suits, lehengas, heavy dresses, and delicate fabrics.</p>
+      <p style="font-size:0.85rem; font-weight:bold; margin-top:6px;">Starts at ₹150 / piece</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal); font-size:1rem; margin-bottom:6px;">🧴 Stain Remove</h3>
+      <p style="font-size:0.85rem; color:var(--gray);">Tough stain treatment applied before the main wash process.</p>
+      <p style="font-size:0.85rem; font-weight:bold; margin-top:6px;">Starts at ₹50 / garment</p>
+    </div>
+    <button class="btn btn-outline" onclick="nav('scr-client-dash')">Back to Dashboard</button>
   </div>
 
   <div id="scr-client-request" class="screen">
     <h2>Schedule Pickup</h2>
     <div class="card">
       <input type="text" id="req-name" placeholder="Your Full Name">
-      <input type="tel" id="req-mob" placeholder="Mobile Number">
-      <input type="text" id="req-addr" placeholder="Pickup Address">
+      <input type="tel" id="req-mob" placeholder="Mobile Number (10 digits)">
+      <input type="text" id="req-addr" placeholder="Detailed Pickup Address">
       <select id="req-slot">
         <option value="">Select Preferred Time</option>
         <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
@@ -106,11 +132,11 @@
 
   <div id="scr-pickup-dash" class="screen">
     <h2>Pickup Dashboard</h2>
-    <button class="btn btn-primary" onclick="nav('scr-pickup-new')">➕ New Walk-in / Direct Order</button>
+    <button class="btn btn-primary" onclick="startWalkIn()">➕ New Walk-in / Direct Order</button>
     
     <h3 style="margin: 20px 0 10px; font-size: 1rem; color: var(--navy);">Scheduled Pickups</h3>
     <div id="pickup-tasks-list"></div>
-    <button class="btn btn-outline" style="margin-top:20px;" onclick="nav('scr-login')">Logout</button>
+    <button class="btn btn-outline" style="margin-top:20px; border-color:#ccc; color:#888;" onclick="nav('scr-login')">Logout</button>
   </div>
 
   <div id="scr-pickup-action" class="screen">
@@ -120,21 +146,27 @@
     <div class="card">
       <h3 style="font-size: 0.9rem; margin-bottom:10px;">Select Items Collected</h3>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
-        <span>👕 Shirts/T-Shirts</span>
-        <input type="number" id="pu-qty-shirt" value="0" min="0" style="width:60px; margin:0;">
+        <span>👕 Shirts / Tops</span>
+        <input type="number" id="pu-qty-shirt" value="0" min="0" style="width:60px; margin:0; text-align:center;">
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
-        <span>👖 Trousers/Jeans</span>
-        <input type="number" id="pu-qty-pant" value="0" min="0" style="width:60px; margin:0;">
+        <span>👖 Trousers / Jeans</span>
+        <input type="number" id="pu-qty-pant" value="0" min="0" style="width:60px; margin:0; text-align:center;">
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
-        <span>🛏️ Bed Sheets/Household</span>
-        <input type="number" id="pu-qty-hh" value="0" min="0" style="width:60px; margin:0;">
+        <span>👗 Dresses / Sarees</span>
+        <input type="number" id="pu-qty-dress" value="0" min="0" style="width:60px; margin:0; text-align:center;">
       </div>
-      <select id="pu-stype" style="margin-top:10px;">
-        <option value="Wash n Fold">Wash n Fold</option>
-        <option value="Wash & Iron">Wash & Iron</option>
-        <option value="Dry Clean">Dry Clean</option>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+        <span>🛏️ Bed Sheets / Household</span>
+        <input type="number" id="pu-qty-hh" value="0" min="0" style="width:60px; margin:0; text-align:center;">
+      </div>
+      
+      <h3 style="font-size: 0.9rem; margin-bottom:5px; margin-top:15px;">Service Type Required</h3>
+      <select id="pu-stype" style="margin-bottom:0;">
+        <option value="Wash n Fold">🫧 Wash n Fold</option>
+        <option value="Wash & Iron">🔳 Wash & Iron</option>
+        <option value="Dry Clean">✨ Dry Clean</option>
       </select>
     </div>
     
@@ -156,9 +188,16 @@
   let currentRole = '';
   let activePickupId = null;
 
+  // Added safety check in navigation to prevent blank screens
   function nav(screenId) {
+    const target = document.getElementById(screenId);
+    if(!target) {
+      console.error("Screen ID not found in HTML:", screenId);
+      alert("Error: Screen not found.");
+      return;
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
+    target.classList.add('active');
   }
 
   function loginAs(role) {
@@ -176,9 +215,9 @@
 
   // --- CLIENT LOGIC ---
   function submitPickupReq() {
-    const name = document.getElementById('req-name').value;
-    const mob = document.getElementById('req-mob').value;
-    const addr = document.getElementById('req-addr').value;
+    const name = document.getElementById('req-name').value.trim();
+    const mob = document.getElementById('req-mob').value.trim();
+    const addr = document.getElementById('req-addr').value.trim();
     const slot = document.getElementById('req-slot').value;
     
     if(!name || !mob || !addr || !slot) return alert("Please fill all details");
@@ -190,6 +229,12 @@
     });
     saveDB(db);
     
+    // Clear form
+    document.getElementById('req-name').value = '';
+    document.getElementById('req-mob').value = '';
+    document.getElementById('req-addr').value = '';
+    document.getElementById('req-slot').value = '';
+    
     alert("Pickup Requested Successfully! We will notify you when our rider is on the way.");
     nav('scr-client-dash');
   }
@@ -198,19 +243,21 @@
     let db = getDB();
     let list = document.getElementById('client-orders-list');
     
-    // For demo purposes, we fetch all orders. In reality, you'd filter by Client ID/Mobile.
-    if(db.orders.length === 0) {
+    // Reverse array to show newest orders first
+    let orders = [...db.orders].reverse();
+    
+    if(orders.length === 0) {
       list.innerHTML = `<div class="card" style="text-align:center; color:var(--gray);">No active orders</div>`;
       return;
     }
 
-    list.innerHTML = db.orders.map(o => `
-      <div class="card" onclick="viewOrderTracking('${o.id}')" style="cursor:pointer;">
+    list.innerHTML = orders.map(o => `
+      <div class="card" onclick="viewOrderTracking('${o.id}')" style="cursor:pointer; border-left:4px solid var(--teal);">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
           <strong style="color:var(--teal);">${o.id}</strong>
           <span class="badge ${o.status==='Ready'?'b-ready':'b-pending'}">${o.status}</span>
         </div>
-        <div style="font-size:0.8rem; color:var(--gray);">Items: ${o.totalItems} | Amt: ₹${o.amount}</div>
+        <div style="font-size:0.8rem; color:var(--gray);">Items: ${o.totalItems} | Type: ${o.type}</div>
       </div>
     `).join('');
   }
@@ -222,7 +269,7 @@
     
     const steps = ['Received', 'Washing', 'Ready', 'Delivered'];
     let currentStepIdx = steps.indexOf(o.status);
-    if(currentStepIdx === -1) currentStepIdx = 0; // fallback
+    if(currentStepIdx === -1) currentStepIdx = 0;
 
     let trackerHTML = `<div class="tracker">` + steps.map((s, i) => `
       <div class="track-step ${i <= currentStepIdx ? 'active' : ''}">
@@ -234,15 +281,16 @@
     let billHTML = o.status === 'Ready' ? `
       <div style="margin-top:20px; padding-top:15px; border-top:1px dashed var(--border); text-align:center;">
         <h3 style="color:var(--green); margin-bottom:10px;">Order Ready! Total: ₹${o.amount}</h3>
-        <p style="font-size:0.8rem; color:var(--gray); margin-bottom:10px;">Scan to pay at delivery</p>
+        <p style="font-size:0.8rem; color:var(--gray); margin-bottom:10px;">Scan to pay via UPI</p>
         <div id="qr-client-${o.id}" style="display:flex; justify-content:center;"></div>
       </div>
-    ` : `<p style="text-align:center; font-size:0.8rem; color:var(--gray); margin-top:20px;">Bill will be generated once washing is complete.</p>`;
+    ` : `<p style="text-align:center; font-size:0.8rem; color:var(--gray); margin-top:20px;">Final bill generated when garments are Ready.</p>`;
 
     card.innerHTML = `
-      <h3 style="margin-bottom:15px;">Order: ${o.id}</h3>
-      <p style="font-size:0.85rem;"><strong>Type:</strong> ${o.type}</p>
-      <p style="font-size:0.85rem;"><strong>Total Garments:</strong> ${o.totalItems}</p>
+      <h3 style="margin-bottom:15px; color:var(--navy);">Order: ${o.id}</h3>
+      <p style="font-size:0.85rem; margin-bottom:5px;"><strong>Client:</strong> ${o.name}</p>
+      <p style="font-size:0.85rem; margin-bottom:5px;"><strong>Service Type:</strong> ${o.type}</p>
+      <p style="font-size:0.85rem; margin-bottom:15px;"><strong>Total Garments:</strong> ${o.totalItems} pieces</p>
       ${trackerHTML}
       ${billHTML}
     `;
@@ -252,8 +300,8 @@
     if(o.status === 'Ready') {
       setTimeout(() => {
         new QRCode(document.getElementById(`qr-client-${o.id}`), {
-          text: `upi://pay?pa=yourupi@bank&pn=NikkNNice&am=${o.amount}&cu=INR`,
-          width: 120, height: 120
+          text: `upi://pay?pa=yourupi@paytm&pn=NikkNNice&am=${o.amount}&cu=INR`,
+          width: 140, height: 140, colorDark: "#1c2b3a", colorLight: "#ffffff"
         });
       }, 100);
     }
@@ -273,10 +321,13 @@
     list.innerHTML = pending.map(p => `
       <div class="card">
         <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-          <strong>${p.name}</strong> <span class="badge b-pending">${p.slot}</span>
+          <strong style="color:var(--navy); font-size:1.1rem;">${p.name}</strong> 
+          <span class="badge b-pending">${p.slot}</span>
         </div>
-        <p style="font-size:0.8rem; color:var(--gray); margin-bottom:10px;">📍 ${p.address} <br>📞 ${p.mobile}</p>
-        <button class="btn btn-primary" style="padding:8px; font-size:0.9rem;" onclick="startPickup('${p.id}')">Start Pickup</button>
+        <p style="font-size:0.85rem; color:var(--gray); margin-bottom:12px; line-height:1.4;">
+          📍 ${p.address} <br>📞 ${p.mobile}
+        </p>
+        <button class="btn btn-primary" style="padding:10px; font-size:0.9rem;" onclick="startPickup('${p.id}')">Proceed to Pickup</button>
       </div>
     `).join('');
   }
@@ -288,48 +339,77 @@
     
     document.getElementById('pu-action-title').innerText = "Process Scheduled Pickup";
     document.getElementById('pu-client-info').innerHTML = `
-      <strong>${p.name}</strong><br>
-      <span style="font-size:0.8rem; color:var(--gray);">${p.mobile} | ${p.address}</span>
+      <strong style="font-size:1.1rem; color:var(--teal);">${p.name}</strong><br>
+      <span style="font-size:0.85rem; color:var(--gray);">${p.mobile} <br> ${p.address}</span>
     `;
     
+    resetCounters();
+    nav('scr-pickup-action');
+  }
+
+  // MISSING SCREEN 2 logic: Walk-In Form handler
+  function startWalkIn() {
+    activePickupId = null;
+    document.getElementById('pu-action-title').innerText = "New Walk-in Order";
+    document.getElementById('pu-client-info').innerHTML = `
+      <p style="font-size:0.8rem; font-weight:bold; margin-bottom:5px;">Client Details</p>
+      <input type="text" id="walkin-name" placeholder="Client Full Name" style="margin-bottom:8px;">
+      <input type="tel" id="walkin-mob" placeholder="Mobile Number (10 digits)" style="margin-bottom:0;">
+    `;
+    
+    resetCounters();
+    nav('scr-pickup-action');
+  }
+  
+  function resetCounters() {
     document.getElementById('pu-qty-shirt').value = 0;
     document.getElementById('pu-qty-pant').value = 0;
+    document.getElementById('pu-qty-dress').value = 0;
     document.getElementById('pu-qty-hh').value = 0;
-    
-    nav('scr-pickup-action');
   }
 
   function generateOrderSlip() {
     let shirts = parseInt(document.getElementById('pu-qty-shirt').value) || 0;
     let pants = parseInt(document.getElementById('pu-qty-pant').value) || 0;
+    let dresses = parseInt(document.getElementById('pu-qty-dress').value) || 0;
     let hh = parseInt(document.getElementById('pu-qty-hh').value) || 0;
     let type = document.getElementById('pu-stype').value;
-    let totalItems = shirts + pants + hh;
+    let totalItems = shirts + pants + dresses + hh;
 
-    if(totalItems === 0) return alert("Please add at least 1 item");
-
-    // Mock pricing calculation
-    let amount = (shirts * 50) + (pants * 70) + (hh * 100); 
+    if(totalItems === 0) return alert("Please add at least 1 item to proceed.");
 
     let db = getDB();
-    let p = activePickupId ? db.pickups.find(x => x.id === activePickupId) : { name: "Walk-in", mobile: "N/A" };
+    let clientName, clientMob;
+
+    // Determine if it's a scheduled pickup or Walk-in
+    if(activePickupId) {
+      let p = db.pickups.find(x => x.id === activePickupId);
+      clientName = p.name;
+      clientMob = p.mobile;
+      p.status = 'Completed'; // Mark as collected
+    } else {
+      clientName = document.getElementById('walkin-name').value.trim();
+      clientMob = document.getElementById('walkin-mob').value.trim();
+      if(!clientName || !clientMob) return alert("Please enter Walk-in Client Name and Mobile.");
+    }
+
+    // Mock pricing calculation (just an estimate for the mobile app)
+    let amount = (shirts * 50) + (pants * 70) + (dresses * 100) + (hh * 100); 
     
-    let orderId = 'ORD-' + Math.floor(Math.random()*100000);
+    let orderId = 'ORD-' + Math.floor(1000 + Math.random()*9000);
     
     db.orders.push({
-      id: orderId, name: p.name, mobile: p.mobile, totalItems, type, amount, status: 'Received'
+      id: orderId, name: clientName, mobile: clientMob, totalItems, type, amount, status: 'Received'
     });
-
-    if(activePickupId) p.status = 'Completed'; // Mark pickup as done
 
     saveDB(db);
     
-    // Simulate sending WhatsApp
-    let waMsg = `🧺 *Nikk n Nice Laundry*\n\nHello ${p.name}, your garments have been picked up!\n\n📋 *Order ID:* ${orderId}\n👕 *Total Items:* ${totalItems}\n🏷️ *Type:* ${type}\n\nTrack your order in the Client App. Thank you!`;
-    let waUrl = `https://wa.me/91${p.mobile}?text=${encodeURIComponent(waMsg)}`;
+    // Prepare WhatsApp Message
+    let waMsg = `🧺 *Nikk n Nice Laundry*\n\nHello ${clientName}, your garments have been successfully picked up!\n\n📋 *Order ID:* ${orderId}\n👕 *Total Items:* ${totalItems} pieces\n🏷️ *Service Type:* ${type}\n\nYou can track your order live on our Client App. Thank you for choosing Nikk n Nice!`;
+    let waUrl = `https://wa.me/91${clientMob}?text=${encodeURIComponent(waMsg)}`;
     
-    alert(`Order ${orderId} created successfully & synced to central system!`);
-    window.open(waUrl, '_blank'); // Opens WhatsApp for the pickup boy to send
+    alert(`Order ${orderId} created successfully & synced!`);
+    window.open(waUrl, '_blank'); // Opens WhatsApp for the rider to hit 'send'
     
     renderPickupDash();
     nav('scr-pickup-dash');
