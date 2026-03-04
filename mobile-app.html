@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nikk n Nice - Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f0ea; --white: #fff; --navy: #1c2b3a; --teal: #2a7f7f; 
+    --gold: #c8922a; --gold2: #f0c060; --gray: #7f8c8d; --border: #ddd4c8;
+    --green: #27ae60; --blue: #2980b9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+  body { background: var(--bg); color: var(--navy); display: flex; justify-content: center; }
+  
+  /* Mobile Container Simulator */
+  #app-container {
+    width: 100%; max-width: 480px; background: var(--white); min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; display: flex; flex-direction: column;
+  }
+  
+  header {
+    background: var(--navy); color: var(--white); padding: 16px; text-align: center;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .brand { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold2); }
+  
+  .screen { display: none; padding: 20px; flex: 1; overflow-y: auto; background: var(--bg); }
+  .screen.active { display: block; }
+  
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 15px; color: var(--teal); }
+  
+  .card { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  
+  .btn { display: block; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; text-align: center; transition: 0.2s; margin-bottom: 10px; }
+  .btn-primary { background: var(--teal); color: var(--white); }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-wa { background: #25D366; color: var(--white); }
+  .btn-outline { background: transparent; border: 2px solid var(--teal); color: var(--teal); }
+  
+  input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; font-size: 1rem; background: #faf7f3; }
+  
+  .badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+  .b-pending { background: #fde8d4; color: var(--amber); }
+  .b-ready { background: #d5f5e3; color: var(--green); }
+  
+  /* Tracker */
+  .tracker { display: flex; justify-content: space-between; margin: 20px 0; position: relative; }
+  .tracker::before { content: ''; position: absolute; top: 12px; left: 0; right: 0; height: 3px; background: var(--border); z-index: 1; }
+  .track-step { position: relative; z-index: 2; text-align: center; flex: 1; font-size: 0.7rem; font-weight: 700; color: var(--gray); }
+  .track-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--white); border: 3px solid var(--border); margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: 0.3s;}
+  .track-step.active .track-icon { border-color: var(--teal); background: var(--teal); color: white; }
+  .track-step.active { color: var(--teal); }
+</style>
+</head>
+<body>
+
+<div id="app-container">
+  <header>
+    <div class="brand">Nikk n Nice</div>
+    <div id="header-sub" style="font-size: 0.8rem; color: #8899aa; letter-spacing: 1px;">LAUNDRY SERVICES</div>
+  </header>
+
+  <div id="scr-login" class="screen active">
+    <div class="card" style="text-align: center; margin-top: 40px;">
+      <h2>Welcome</h2>
+      <p style="color: var(--gray); margin-bottom: 20px; font-size: 0.9rem;">Choose your app interface to proceed.</p>
+      <button class="btn btn-primary" onclick="loginAs('client')">📱 I am a Client</button>
+      <button class="btn btn-gold" onclick="loginAs('pickup')">🛵 I am a Pickup Boy</button>
+    </div>
+  </div>
+
+  <div id="scr-client-dash" class="screen">
+    <h2>Hello, Customer!</h2>
+    <button class="btn btn-gold" onclick="nav('scr-client-request')">🚚 Request a Pickup</button>
+    <button class="btn btn-outline" onclick="nav('scr-client-menu')">📋 View Service Menu</button>
+    
+    <h3 style="margin: 20px 0 10px; font-size: 1rem; color: var(--navy);">Your Active Orders</h3>
+    <div id="client-orders-list"></div>
+  </div>
+
+  <div id="scr-client-request" class="screen">
+    <h2>Schedule Pickup</h2>
+    <div class="card">
+      <input type="text" id="req-name" placeholder="Your Full Name">
+      <input type="tel" id="req-mob" placeholder="Mobile Number">
+      <input type="text" id="req-addr" placeholder="Pickup Address">
+      <select id="req-slot">
+        <option value="">Select Preferred Time</option>
+        <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+        <option value="Afternoon (1 PM - 4 PM)">Afternoon (1 PM - 4 PM)</option>
+        <option value="Evening (5 PM - 8 PM)">Evening (5 PM - 8 PM)</option>
+      </select>
+      <button class="btn btn-primary" onclick="submitPickupReq()">Submit Request</button>
+      <button class="btn btn-outline" onclick="nav('scr-client-dash')">Cancel</button>
+    </div>
+  </div>
+
+  <div id="scr-client-track" class="screen">
+    <h2>Order Tracking</h2>
+    <div class="card" id="track-card"></div>
+    <button class="btn btn-outline" onclick="nav('scr-client-dash')">Back to Home</button>
+  </div>
+
+  <div id="scr-pickup-dash" class="screen">
+    <h2>Pickup Dashboard</h2>
+    <button class="btn btn-primary" onclick="nav('scr-pickup-new')">➕ New Walk-in / Direct Order</button>
+    
+    <h3 style="margin: 20px 0 10px; font-size: 1rem; color: var(--navy);">Scheduled Pickups</h3>
+    <div id="pickup-tasks-list"></div>
+    <button class="btn btn-outline" style="margin-top:20px;" onclick="nav('scr-login')">Logout</button>
+  </div>
+
+  <div id="scr-pickup-action" class="screen">
+    <h2 id="pu-action-title">Process Pickup</h2>
+    <div class="card" id="pu-client-info"></div>
+    
+    <div class="card">
+      <h3 style="font-size: 0.9rem; margin-bottom:10px;">Select Items Collected</h3>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+        <span>👕 Shirts/T-Shirts</span>
+        <input type="number" id="pu-qty-shirt" value="0" min="0" style="width:60px; margin:0;">
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+        <span>👖 Trousers/Jeans</span>
+        <input type="number" id="pu-qty-pant" value="0" min="0" style="width:60px; margin:0;">
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+        <span>🛏️ Bed Sheets/Household</span>
+        <input type="number" id="pu-qty-hh" value="0" min="0" style="width:60px; margin:0;">
+      </div>
+      <select id="pu-stype" style="margin-top:10px;">
+        <option value="Wash n Fold">Wash n Fold</option>
+        <option value="Wash & Iron">Wash & Iron</option>
+        <option value="Dry Clean">Dry Clean</option>
+      </select>
+    </div>
+    
+    <button class="btn btn-primary" onclick="generateOrderSlip()">📄 Generate Order & Sync</button>
+    <button class="btn btn-outline" onclick="nav('scr-pickup-dash')">Cancel</button>
+  </div>
+
+</div>
+
+<script>
+  // Simulated Cloud Database (using localStorage)
+  function getDB() {
+    let db = JSON.parse(localStorage.getItem('nnn_mobile_db'));
+    if (!db) db = { pickups: [], orders: [] };
+    return db;
+  }
+  function saveDB(db) { localStorage.setItem('nnn_mobile_db', JSON.stringify(db)); }
+
+  let currentRole = '';
+  let activePickupId = null;
+
+  function nav(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  function loginAs(role) {
+    currentRole = role;
+    if (role === 'client') {
+      document.getElementById('header-sub').innerText = "CLIENT PORTAL";
+      renderClientDash();
+      nav('scr-client-dash');
+    } else {
+      document.getElementById('header-sub').innerText = "STAFF APP";
+      renderPickupDash();
+      nav('scr-pickup-dash');
+    }
+  }
+
+  // --- CLIENT LOGIC ---
+  function submitPickupReq() {
+    const name = document.getElementById('req-name').value;
+    const mob = document.getElementById('req-mob').value;
+    const addr = document.getElementById('req-addr').value;
+    const slot = document.getElementById('req-slot').value;
+    
+    if(!name || !mob || !addr || !slot) return alert("Please fill all details");
+
+    let db = getDB();
+    db.pickups.push({
+      id: 'PU-' + Math.floor(Math.random()*10000),
+      name, mobile: mob, address: addr, slot, status: 'Pending'
+    });
+    saveDB(db);
+    
+    alert("Pickup Requested Successfully! We will notify you when our rider is on the way.");
+    nav('scr-client-dash');
+  }
+
+  function renderClientDash() {
+    let db = getDB();
+    let list = document.getElementById('client-orders-list');
+    
+    // For demo purposes, we fetch all orders. In reality, you'd filter by Client ID/Mobile.
+    if(db.orders.length === 0) {
+      list.innerHTML = `<div class="card" style="text-align:center; color:var(--gray);">No active orders</div>`;
+      return;
+    }
+
+    list.innerHTML = db.orders.map(o => `
+      <div class="card" onclick="viewOrderTracking('${o.id}')" style="cursor:pointer;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong style="color:var(--teal);">${o.id}</strong>
+          <span class="badge ${o.status==='Ready'?'b-ready':'b-pending'}">${o.status}</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--gray);">Items: ${o.totalItems} | Amt: ₹${o.amount}</div>
+      </div>
+    `).join('');
+  }
+
+  function viewOrderTracking(orderId) {
+    let db = getDB();
+    let o = db.orders.find(x => x.id === orderId);
+    let card = document.getElementById('track-card');
+    
+    const steps = ['Received', 'Washing', 'Ready', 'Delivered'];
+    let currentStepIdx = steps.indexOf(o.status);
+    if(currentStepIdx === -1) currentStepIdx = 0; // fallback
+
+    let trackerHTML = `<div class="tracker">` + steps.map((s, i) => `
+      <div class="track-step ${i <= currentStepIdx ? 'active' : ''}">
+        <div class="track-icon">${i < currentStepIdx ? '✓' : (i===currentStepIdx ? '●' : '')}</div>
+        ${s}
+      </div>
+    `).join('') + `</div>`;
+
+    let billHTML = o.status === 'Ready' ? `
+      <div style="margin-top:20px; padding-top:15px; border-top:1px dashed var(--border); text-align:center;">
+        <h3 style="color:var(--green); margin-bottom:10px;">Order Ready! Total: ₹${o.amount}</h3>
+        <p style="font-size:0.8rem; color:var(--gray); margin-bottom:10px;">Scan to pay at delivery</p>
+        <div id="qr-client-${o.id}" style="display:flex; justify-content:center;"></div>
+      </div>
+    ` : `<p style="text-align:center; font-size:0.8rem; color:var(--gray); margin-top:20px;">Bill will be generated once washing is complete.</p>`;
+
+    card.innerHTML = `
+      <h3 style="margin-bottom:15px;">Order: ${o.id}</h3>
+      <p style="font-size:0.85rem;"><strong>Type:</strong> ${o.type}</p>
+      <p style="font-size:0.85rem;"><strong>Total Garments:</strong> ${o.totalItems}</p>
+      ${trackerHTML}
+      ${billHTML}
+    `;
+    
+    nav('scr-client-track');
+
+    if(o.status === 'Ready') {
+      setTimeout(() => {
+        new QRCode(document.getElementById(`qr-client-${o.id}`), {
+          text: `upi://pay?pa=yourupi@bank&pn=NikkNNice&am=${o.amount}&cu=INR`,
+          width: 120, height: 120
+        });
+      }, 100);
+    }
+  }
+
+  // --- PICKUP BOY LOGIC ---
+  function renderPickupDash() {
+    let db = getDB();
+    let list = document.getElementById('pickup-tasks-list');
+    
+    let pending = db.pickups.filter(p => p.status === 'Pending');
+    if(pending.length === 0) {
+      list.innerHTML = `<div class="card" style="text-align:center; color:var(--gray);">No pickups scheduled</div>`;
+      return;
+    }
+
+    list.innerHTML = pending.map(p => `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+          <strong>${p.name}</strong> <span class="badge b-pending">${p.slot}</span>
+        </div>
+        <p style="font-size:0.8rem; color:var(--gray); margin-bottom:10px;">📍 ${p.address} <br>📞 ${p.mobile}</p>
+        <button class="btn btn-primary" style="padding:8px; font-size:0.9rem;" onclick="startPickup('${p.id}')">Start Pickup</button>
+      </div>
+    `).join('');
+  }
+
+  function startPickup(pickupId) {
+    activePickupId = pickupId;
+    let db = getDB();
+    let p = db.pickups.find(x => x.id === pickupId);
+    
+    document.getElementById('pu-action-title').innerText = "Process Scheduled Pickup";
+    document.getElementById('pu-client-info').innerHTML = `
+      <strong>${p.name}</strong><br>
+      <span style="font-size:0.8rem; color:var(--gray);">${p.mobile} | ${p.address}</span>
+    `;
+    
+    document.getElementById('pu-qty-shirt').value = 0;
+    document.getElementById('pu-qty-pant').value = 0;
+    document.getElementById('pu-qty-hh').value = 0;
+    
+    nav('scr-pickup-action');
+  }
+
+  function generateOrderSlip() {
+    let shirts = parseInt(document.getElementById('pu-qty-shirt').value) || 0;
+    let pants = parseInt(document.getElementById('pu-qty-pant').value) || 0;
+    let hh = parseInt(document.getElementById('pu-qty-hh').value) || 0;
+    let type = document.getElementById('pu-stype').value;
+    let totalItems = shirts + pants + hh;
+
+    if(totalItems === 0) return alert("Please add at least 1 item");
+
+    // Mock pricing calculation
+    let amount = (shirts * 50) + (pants * 70) + (hh * 100); 
+
+    let db = getDB();
+    let p = activePickupId ? db.pickups.find(x => x.id === activePickupId) : { name: "Walk-in", mobile: "N/A" };
+    
+    let orderId = 'ORD-' + Math.floor(Math.random()*100000);
+    
+    db.orders.push({
+      id: orderId, name: p.name, mobile: p.mobile, totalItems, type, amount, status: 'Received'
+    });
+
+    if(activePickupId) p.status = 'Completed'; // Mark pickup as done
+
+    saveDB(db);
+    
+    // Simulate sending WhatsApp
+    let waMsg = `🧺 *Nikk n Nice Laundry*\n\nHello ${p.name}, your garments have been picked up!\n\n📋 *Order ID:* ${orderId}\n👕 *Total Items:* ${totalItems}\n🏷️ *Type:* ${type}\n\nTrack your order in the Client App. Thank you!`;
+    let waUrl = `https://wa.me/91${p.mobile}?text=${encodeURIComponent(waMsg)}`;
+    
+    alert(`Order ${orderId} created successfully & synced to central system!`);
+    window.open(waUrl, '_blank'); // Opens WhatsApp for the pickup boy to send
+    
+    renderPickupDash();
+    nav('scr-pickup-dash');
+  }
+</script>
+</body>
+</html>
